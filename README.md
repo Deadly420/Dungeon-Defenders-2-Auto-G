@@ -57,6 +57,6 @@ See LICENSE
 
 ## 💡 Author
 
-Deadly — Developer & Designer of Macro
+[@Deadly](https://github.com/Deadly420) — Developer & Designer of Macro
 
 ---
