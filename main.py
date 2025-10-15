@@ -1,7 +1,44 @@
+# import pydirectinput
+# import keyboard
+# import time
+#
+# while True:
+#     if keyboard.is_pressed("esc"):
+#         print("Macro stopped.")
+#         break
+#
+#     # # Press keys down
+#     pydirectinput.keyDown("w")
+#     pydirectinput.keyDown("a")
+#     pydirectinput.keyDown("s")
+#     pydirectinput.keyDown("d")
+#
+#     # Release keys
+#     pydirectinput.keyUp("w")
+#     pydirectinput.keyUp("a")
+#     pydirectinput.keyUp("s")
+#     pydirectinput.keyUp("d")
+
+# import pyautogui
+# import keyboard
+# import time
+#
+# print("Move your mouse to the desired position and press ESC to stop...")
+#
+# while True:
+#     x, y = pyautogui.position()
+#     print(f"X: {x} | Y: {y}", end="\r")
+#     time.sleep(0.05)
+#
+#     if keyboard.is_pressed("esc"):
+#         print(f"\nFinal position: ({x}, {y})")
+#         break
+
 import time
 import win32gui
 import win32con
 import win32api
+
 import customtkinter as ctk
 from tkinter import messagebox
 from threading import Thread
@@ -10,7 +47,7 @@ class MacroApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Macro Controller")
-        self.root.geometry("400x400")
+        self.root.geometry("400x420")
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
 
@@ -26,7 +63,7 @@ class MacroApp:
         self.mana_thread = None
 
         # UI Components
-        self.status_label = ctk.CTkLabel(root, text="Status: Stopped", font=("Arial", 16))
+        self.status_label = ctk.CTkLabel(root, text="Status: Stopped", font=("Segoe UI Semibold", 16))
         self.status_label.pack(pady=20)
 
         self.start_button = ctk.CTkButton(root, text="Start Macro", command=self.start_macro, font=("Arial", 14), width=200)
@@ -41,12 +78,28 @@ class MacroApp:
         self.exit_button = ctk.CTkButton(root, text="Exit", command=self.exit_app, font=("Arial", 14), width=200)
         self.exit_button.pack(pady=10)
 
+        self.title_frame = ctk.CTkFrame(root, fg_color="transparent")
+        self.title_frame.pack(pady=15)
+
+        self.title_window_label = ctk.CTkLabel(self.title_frame,text="🎯 Target Window Title:",font=("Segoe UI Semibold", 16))
+        self.title_window_label.pack(pady=(0, 5))
+
+        self.title_var = ctk.StringVar(value=self.target_window_title)
+        self.title_window = ctk.CTkEntry(self.title_frame, textvariable=self.title_var, font=("Segoe UI", 14), height=36, width=200, corner_radius=10, justify="center")
+        self.title_window.pack()
+
+        self.title_var.trace_add("write", self.update_target_window_title)
+
         # Settings UI
         self.drop_mana_check = ctk.CTkCheckBox(root, text="Drop Mana (M)", variable=self.drop_mana_enabled)
         self.drop_mana_check.pack(pady=10)
 
         # Keyboard Listener for Q key (pause/resume)
         self.root.bind("<KeyPress-q>", lambda _: self.toggle_pause())
+
+    def update_target_window_title(self, *_):
+        self.target_window_title = self.title_var.get()
+        print(f"Target window title updated to: {self.target_window_title}")
 
     def send_key_to_window(self, hwnd, key):
         try:
@@ -86,11 +139,11 @@ class MacroApp:
 
         while self.is_running:
             if self.is_paused:
-                self.status_label.configure(text="Status: Paused")
+                self.status_label.configure(text="Status: Paused", text_color="#eed202")
                 time.sleep(0.1)
                 continue
 
-            self.status_label.configure(text="Status: Running")
+            self.status_label.configure(text=f"Status: Running ({self.target_window_title})", text_color="#f5ce89")
 
             # Always press G
             self.send_key_to_window(hwnd, ord('G'))
@@ -106,10 +159,14 @@ class MacroApp:
                 self.mana_thread.start()
 
     def start_macro(self):
+        print(f"✅ Starting macro for: {''.join(self.target_window_title)}")
+        self.status_label.configure(text=f"Status: Running ({self.target_window_title})", text_color="#f5ce89")
+
         if not self.is_running:
             self.is_running = True
             self.is_paused = False
-            self.status_label.configure(text="Status: Running")
+            self.is_running = True
+            self.status_label.configure(text=f"Status: Running ({self.target_window_title})", text_color="#f5ce89")
             self.pause_button.configure(text="Pause Macro")
             thread = Thread(target=self.macro_loop, daemon=True)
             thread.start()
@@ -118,16 +175,16 @@ class MacroApp:
         if self.is_running:
             self.is_paused = not self.is_paused
             if self.is_paused:
-                self.status_label.configure(text="Status: Paused")
+                self.status_label.configure(text="Status: Paused", text_color="#eed202")
                 self.pause_button.configure(text="Resume Macro")
             else:
-                self.status_label.configure(text="Status: Running")
+                self.status_label.configure(text=f"Status: Running ({self.target_window_title})", text_color="#f5ce89")
                 self.pause_button.configure(text="Pause Macro")
 
     def stop_macro(self):
         self.is_running = False
         self.mana_thread = None
-        self.status_label.configure(text="Status: Stopped")
+        self.status_label.configure(text="Status: Stopped", text_color="#cf142b")
         self.pause_button.configure(text="Pause Macro")
 
     def exit_app(self):
