@@ -1,5 +1,6 @@
-# 🎮 Macro Controller — Dungeon Defenders 2 Automation Tool
 
+# 🎮 Macro Controller — Dungeon Defenders 2 Automation Tool
+![GitHub all releases](https://img.shields.io/github/downloads/Deadly420/Dungeon-Defenders-2-Auto-G/total?color=brightgreen&label=Downloads&logo=github)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?logo=windows)
 ![License](https://img.shields.io/badge/License-MIT-green)
