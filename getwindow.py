@@ -1,14 +1,23 @@
-import win32gui # pip install pywin32
+import win32gui
 
-def list_open_windows():
-    def callback(hwnd, windows):
+def find_windows_by_title(keyword):
+    """Return a list of (hwnd, title) for windows containing the keyword."""
+    matches = []
+
+    def callback(hwnd, _):
         title = win32gui.GetWindowText(hwnd)
-        if title:
-            windows.append(title)
-    windows = []
-    win32gui.EnumWindows(callback, windows)
-    return windows
+        if keyword.lower() in title.lower() and win32gui.IsWindowVisible(hwnd):
+            matches.append((hwnd, title))
 
-print("Open windows:")
-for window in list_open_windows():
-    print(window)
+    win32gui.EnumWindows(callback, None)
+    return matches
+
+target_keyword = ""
+targets = find_windows_by_title(target_keyword)
+
+if not targets:
+    print(f"No windows found for: {target_keyword}")
+else:
+    print(f"Found {len(targets)} matching windows:")
+    for hwnd, title in targets:
+        print(f" - {title} (HWND: {hwnd})")
